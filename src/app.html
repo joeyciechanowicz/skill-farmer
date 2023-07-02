@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/skill-injector.png" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css" />
+
+		<style>
+			/* Pink (Common styles) */
+			:root {
+				--form-element-active-border-color: var(--primary);
+				--form-element-focus-color: var(--primary-focus);
+				--switch-color: var(--primary-inverse);
+				--switch-checked-background-color: var(--primary);
+				--spacing: 8px;
+				--typography-spacing-vertical: 0em;
+				--form-element-spacing-vertical: 0.25rem;
+				--form-element-spacing-horizontal: 0.5rem;
+			}
+
+			h1 {
+				--typography-spacing-vertical: 0em;
+			}
+
+			body > main {
+				--block-spacing-vertical: 1em;
+			}
+		</style>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		%sveltekit.body%
+	</body>
+</html>
