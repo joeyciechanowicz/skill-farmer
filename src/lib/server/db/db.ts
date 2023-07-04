@@ -3,11 +3,14 @@ import type { Database as DatabaseType } from 'better-sqlite3';
 import { DB_PATH } from '$env/static/private';
 import { Kysely, SqliteDialect } from 'kysely';
 import type { Database } from './types';
+import { building } from '$app/environment';
 
 const database = new SqliteDatabase(DB_PATH, { verbose: console.log });
-database.pragma('journal_mode = WAL');
 
-database.exec(`
+if (!building) {
+	database.pragma('journal_mode = WAL');
+
+	database.exec(`
 CREATE TABLE IF NOT EXISTS user(
     id INTEGER PRIMARY KEY,
     charId TEXT NOT NULL,
@@ -27,6 +30,7 @@ CREATE TABLE IF NOT EXISTS char(
 CREATE INDEX IF NOT EXISTS idx_char_user_id 
     ON char(user_id);
 `);
+}
 
 const dialect = new SqliteDialect({
 	database

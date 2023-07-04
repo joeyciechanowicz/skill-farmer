@@ -26,13 +26,14 @@ export async function load({ locals, url, cookies }) {
 				cookies.set(SESSION_COOKIE_NAME, locals.user.sessionId);
 			}
 
-			console.log(data);
 			const char = await createOrUpdateChar({
 				access_token: data.access_token,
 				refresh_token: data.refresh_token,
 				decodedJwt: token,
 				user: locals.user
 			});
+
+			console.log(`Logged in ${token.name} to account ${locals.user?.id}`);
 
 			await updateSp(char);
 

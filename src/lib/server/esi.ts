@@ -12,7 +12,6 @@ const oauthHeaders = {
 export async function refreshAccessToken(char: Char): Promise<Char> {
 	const body = `grant_type=refresh_token&refresh_token=${encodeURIComponent(char.refresh_token)}`;
 
-	console.log('body', body);
 	const result = await fetch(`https://login.eveonline.com/v2/oauth/token`, {
 		method: 'POST',
 		headers: oauthHeaders,
