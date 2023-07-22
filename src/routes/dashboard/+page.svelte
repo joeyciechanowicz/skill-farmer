@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { assets } from '$app/paths';
 	import type { PageRes } from '../types';
 	import type { ActionData } from './$types';
 
 	export let data: PageRes;
 	export let form: ActionData;
-
-	let csvEndpoint = `${data.siteUrl}/csv?token=${data.user?.csvToken}`;
 
 	let updating = false;
 
@@ -28,6 +27,12 @@
 		<ul>
 			<li>SP Available for extraction: {spAvailableForExtraction.toLocaleString()}</li>
 			<li>Extractions possible: {extractorsAvailable}</li>
+			<li>
+				Add another character
+				<a href={data.loginUrl}>
+					<img src="{assets}/eve-sso-login-black-small.png" alt="Add another EVE character" />
+				</a>
+			</li>
 		</ul>
 	</article>
 
@@ -78,18 +83,20 @@
 							{#if data.user?.charId == char.charId}
 								(<small>Main</small>)
 							{/if}
+							{#if char.refreshExpired == 1}
+								<a href={data.loginUrl}>(Re-auth)</a>
+							{/if}
 						</td>
 						<td>{char.skill_points.toLocaleString()}</td>
-						<td
-							><button type="submit" name="delete-char-id" value={char.id} class="outline secondary"
+						<td>
+							<button type="submit" name="delete-char-id" value={char.id} class="outline secondary"
 								>X</button
-							></td
-						>
-						<td
-							><button type="submit" name="refresh-char-id" value={char.id} class="outline"
-								>⟳</button
-							></td
-						>
+							>
+						</td>
+						<td>
+							<button type="submit" name="refresh-char-id" value={char.id} class="outline">⟳</button
+							>
+						</td>
 					</tr>
 				{/each}
 			</tbody>
@@ -99,15 +106,11 @@
 
 		<article>
 			<h2>CSV Export</h2>
-			<p>
+			<label for="csv-export">
 				Use this URL to import your data into a spreadsheet or other application. <strong
 					>Keep this private</strong
 				>, anyone with access to it can read all your characters skill points.
-			</p>
-
-			<label for="csv-export">
-				Your url
-				<input type="text" id="csv-export" name="csv-export" readonly value={csvEndpoint} />
+				<input type="text" id="csv-export" name="csv-export" readonly value={data.csvEndpoint} />
 			</label>
 
 			<button type="submit" name="regenerate-token" value={1} aria-busy={updating}

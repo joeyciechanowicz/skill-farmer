@@ -5,7 +5,7 @@ import { Kysely, SqliteDialect } from 'kysely';
 import type { Database } from './types';
 import { building } from '$app/environment';
 
-const database = new SqliteDatabase(DB_PATH, { verbose: console.log });
+const database = new SqliteDatabase(DB_PATH /* { verbose: console.log } */);
 
 if (!building) {
 	database.pragma('journal_mode = WAL');
@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS char(
 	name TEXT,
 	refresh_token TEXT,
 	skill_points INTEGER,
-	user_id INTEGER
+	user_id INTEGER,
+	refreshExpired INTEGER
 );
 
 CREATE INDEX IF NOT EXISTS idx_char_user_id 
@@ -34,6 +35,10 @@ CREATE INDEX IF NOT EXISTS idx_char_user_id
 
 	try {
 		database.exec(`ALTER TABLE user ADD COLUMN csvToken TEXT`);
+		// eslint-disable-next-line no-empty
+	} catch (e) {}
+	try {
+		database.exec(`ALTER TABLE char ADD COLUMN refreshExpired INTEGER`);
 		// eslint-disable-next-line no-empty
 	} catch (e) {}
 }

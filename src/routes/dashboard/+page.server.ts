@@ -5,6 +5,8 @@ import { SITE_URL } from '$env/static/private';
 import type { PageRes } from '../types';
 import { regenerateCsvToken } from '$lib/server/db/user-repository';
 
+const csvEndpoint = (token: string) => `${SITE_URL}/csv?token=${token}`;
+
 export function load({ locals }): PageRes {
 	if (!locals.user) {
 		throw redirect(307, '/');
@@ -14,7 +16,7 @@ export function load({ locals }): PageRes {
 		user: locals.user,
 		chars: locals.chars,
 		loginUrl: locals.loginUrl,
-		siteUrl: SITE_URL
+		csvEndpoint: csvEndpoint(locals.user.csvToken)
 	};
 }
 
@@ -35,8 +37,12 @@ export const actions = {
 			const res = await Promise.allSettled(locals.chars.map((char) => updateSp(char)));
 
 			const counts = res.reduce(
-				([success, fail], curr) => {
+				([success, fail], curr, i) => {
 					if (curr.status === 'fulfilled') {
+						if (curr.value === 'expiredRefreshToken') {
+							locals.chars[i].refreshExpired = 1;
+							return [success, fail + 1];
+						}
 						return [success + 1, fail];
 					} else {
 						return [success, fail + 1];
@@ -67,6 +73,7 @@ export const actions = {
 			const newToken = await regenerateCsvToken(locals.user.id);
 
 			locals.user.csvToken = newToken;
+			// locals.csvEndpoint = csvEndpoint(newToken)
 
 			return { newToken };
 		} else if (!isNaN(refreshCharIdInt) && refreshCharIdInt > 0) {
@@ -75,6 +82,15 @@ export const actions = {
 			if (chars && chars.length === 1) {
 				const char = chars[0];
 				const newSp = await updateSp(char);
+
+				if (newSp === 'expiredRefreshToken') {
+					char.refreshExpired = 1;
+					return {
+						error: true,
+						message: `Login has expired for ${char.name}. Click the login next to the user`
+					};
+				}
+
 				char.skill_points = newSp;
 				return { refreshed: true, name: char.name };
 			} else {

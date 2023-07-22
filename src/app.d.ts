@@ -1,6 +1,6 @@
 // See https://kit.svelte.dev/docs/types#app
 
-import type { Character, User } from '$lib/server/db/db';
+import type { Char, User } from './lib/server/db/types';
 
 // for information about these interfaces
 declare global {
@@ -8,7 +8,7 @@ declare global {
 		// interface Error {}
 		interface Locals {
 			user: User | undefined;
-			chars: Character[];
+			chars: Char[];
 			loginUrl: string;
 		}
 		// interface PageData {}

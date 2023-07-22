@@ -27,7 +27,8 @@ export async function createOrUpdateChar({
 	if (exists) {
 		const updateChar: CharUpdate = {
 			access_token: access_token,
-			refresh_token: refresh_token
+			refresh_token: refresh_token,
+			refreshExpired: 0
 		};
 		await db
 			.updateTable('char')
@@ -46,7 +47,8 @@ export async function createOrUpdateChar({
 			name: decodedJwt.name,
 			refresh_token,
 			user_id: user.id,
-			skill_points: 0
+			skill_points: 0,
+			refreshExpired: 0
 		};
 		return db.insertInto('char').values(newChar).returningAll().executeTakeFirstOrThrow();
 	}
@@ -69,7 +71,8 @@ export async function updateAccessToken(
 ): Promise<Char> {
 	const update: CharUpdate = {
 		access_token: newAccessToken,
-		refresh_token: newRefreshToken
+		refresh_token: newRefreshToken,
+		refreshExpired: 0
 	};
 
 	return db
@@ -83,6 +86,14 @@ export async function updateAccessToken(
 export async function updateCharSp(char: Char, sp: number) {
 	const update: CharUpdate = {
 		skill_points: sp
+	};
+
+	await db.updateTable('char').set(update).where('id', '=', char.id).execute();
+}
+
+export async function setRefreshExpired(char: Char) {
+	const update: CharUpdate = {
+		refreshExpired: 1
 	};
 
 	await db.updateTable('char').set(update).where('id', '=', char.id).execute();

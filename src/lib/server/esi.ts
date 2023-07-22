@@ -1,5 +1,5 @@
 import { CLIENT_ID, SECRET_KEY } from '$env/static/private';
-import { updateAccessToken, updateCharSp } from './db/char-repository';
+import { setRefreshExpired, updateAccessToken, updateCharSp } from './db/char-repository';
 import type { Char } from './db/types';
 import { verifyJwt } from './jwt';
 
@@ -9,7 +9,7 @@ const oauthHeaders = {
 	Host: 'login.eveonline.com'
 };
 
-export async function refreshAccessToken(char: Char): Promise<Char> {
+export async function refreshAccessToken(char: Char): Promise<Char | 'expiredRefreshToken'> {
 	const body = `grant_type=refresh_token&refresh_token=${encodeURIComponent(char.refresh_token)}`;
 
 	const result = await fetch(`https://login.eveonline.com/v2/oauth/token`, {
@@ -26,6 +26,13 @@ export async function refreshAccessToken(char: Char): Promise<Char> {
 
 		return updatedChar;
 	} else {
+		const responseText = await result.text();
+
+		await setRefreshExpired(char);
+
+		if (responseText.indexOf('Character grant missing/expired.') !== -1) {
+			return 'expiredRefreshToken';
+		}
 		throw new Error(`Error updating access token: ${await result.text()}`);
 	}
 }
@@ -38,7 +45,7 @@ export async function fetchOauthToken(code: string) {
 	});
 }
 
-export async function updateSp(char: Char, retries = 0): Promise<number> {
+export async function updateSp(char: Char, retries = 0): Promise<number | 'expiredRefreshToken'> {
 	const result = await fetch(
 		`https://esi.evetech.net/latest/characters/${char.charId}/skills/?datasource=tranquility&token=access_token_123`,
 		{
@@ -52,9 +59,15 @@ export async function updateSp(char: Char, retries = 0): Promise<number> {
 	if (!result.ok) {
 		const error = await result.text();
 
+		console.log(`Error refreshing for ${char.name}, retrying`, error);
+
 		if (error.indexOf('token is expired') && retries < 3) {
-			console.log(`Expired access token, refreshing for id=${char.id}, name=${char.name}`);
+			console.log(`Expired access token, refreshing for db id=${char.id}, name=${char.name}`);
 			const updatedChar = await refreshAccessToken(char);
+
+			if (updatedChar === 'expiredRefreshToken') {
+				return 'expiredRefreshToken';
+			}
 			return updateSp(updatedChar, retries + 1);
 		}
 

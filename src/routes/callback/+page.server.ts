@@ -1,4 +1,4 @@
-import { SESSION_COOKIE_NAME } from '$env/static/private';
+import { SESSION_COOKIE_NAME, SITE_URL } from '$env/static/private';
 import { redirect } from '@sveltejs/kit';
 
 import { createOrUpdateChar } from '$lib/server/db/char-repository';
@@ -37,12 +37,15 @@ export async function load({ locals, url, cookies }) {
 
 			await updateSp(char);
 
-			throw redirect(307, '/dashboard');
+			throw redirect(307, `${SITE_URL}/dashboard`);
 		} else {
 			console.error(`Failed to auth token: ${await result.text()}`);
-			throw redirect(307, '/');
+			return redirect(307, '/');
 		}
-	} catch (e) {
+	} catch (e: any) {
+		if (e?.status === 307) {
+			throw e;
+		}
 		console.error('failed to post and validate token');
 		console.error(e);
 		throw redirect(307, '/');
