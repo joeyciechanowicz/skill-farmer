@@ -11,7 +11,7 @@
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"preview": "vite preview",
 		"sync": "svelte-kit sync",
-		"start": "pm2 start pm2.config.js",
+		"start": "pm2 start pm2.config.cjs",
 		"restart": "pm2 restart all"
 	},
 	"devDependencies": {
