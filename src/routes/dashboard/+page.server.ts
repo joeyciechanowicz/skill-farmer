@@ -1,7 +1,9 @@
 import { deleteChar } from '$lib/server/db/char-repository';
 import { updateSp } from '$lib/server/esi';
 import { redirect } from '@sveltejs/kit';
+import { SITE_URL } from '$env/static/private';
 import type { PageRes } from '../types';
+import { regenerateCsvToken } from '$lib/server/db/user-repository';
 
 export function load({ locals }): PageRes {
 	if (!locals.user) {
@@ -11,7 +13,8 @@ export function load({ locals }): PageRes {
 	return {
 		user: locals.user,
 		chars: locals.chars,
-		loginUrl: locals.loginUrl
+		loginUrl: locals.loginUrl,
+		siteUrl: SITE_URL
 	};
 }
 
@@ -25,6 +28,7 @@ export const actions = {
 		const deleteCharIdInt = parseInt(data.get('delete-char-id')?.toString() ?? '');
 		const refreshCharIdInt = parseInt(data.get('refresh-char-id')?.toString() ?? '');
 		const refreshAll = parseInt(data.get('refresh-all')?.toString() ?? '');
+		const regenerateToken = parseInt(data.get('regenerate-token')?.toString() ?? '');
 
 		if (refreshAll === 1) {
 			const start = Date.now();
@@ -59,6 +63,12 @@ export const actions = {
 			} else {
 				return { error: true, message: 'No char found' };
 			}
+		} else if (regenerateToken === 1) {
+			const newToken = await regenerateCsvToken(locals.user.id);
+
+			locals.user.csvToken = newToken;
+
+			return { newToken };
 		} else if (!isNaN(refreshCharIdInt) && refreshCharIdInt > 0) {
 			const chars = locals.chars.filter((x) => x.id === refreshCharIdInt);
 

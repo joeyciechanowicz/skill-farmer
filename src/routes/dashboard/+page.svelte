@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { assets } from '$app/paths';
 	import type { PageRes } from '../types';
 	import type { ActionData } from './$types';
 
 	export let data: PageRes;
 	export let form: ActionData;
+
+	let csvEndpoint = `${data.siteUrl}/csv?token=${data.user?.csvToken}`;
 
 	let updating = false;
 
@@ -63,7 +64,6 @@
 	>
 		<table class="">
 			<thead>
-				<th>ID</th>
 				<th>Character</th>
 				<th>SP</th>
 				<th>Delete</th>
@@ -73,8 +73,12 @@
 			<tbody>
 				{#each data.chars as char}
 					<tr>
-						<td>{char.charId}</td>
-						<td>{char.name}</td>
+						<td>
+							{char.name}
+							{#if data.user?.charId == char.charId}
+								(<small>Main</small>)
+							{/if}
+						</td>
 						<td>{char.skill_points.toLocaleString()}</td>
 						<td
 							><button type="submit" name="delete-char-id" value={char.id} class="outline secondary"
@@ -92,6 +96,24 @@
 		</table>
 
 		<button type="submit" name="refresh-all" value={1} aria-busy={updating}>Refresh all</button>
+
+		<article>
+			<h2>CSV Export</h2>
+			<p>
+				Use this URL to import your data into a spreadsheet or other application. <strong
+					>Keep this private</strong
+				>, anyone with access to it can read all your characters skill points.
+			</p>
+
+			<label for="csv-export">
+				Your url
+				<input type="text" id="csv-export" name="csv-export" readonly value={csvEndpoint} />
+			</label>
+
+			<button type="submit" name="regenerate-token" value={1} aria-busy={updating}
+				>Regenerate CSV Token</button
+			>
+		</article>
 	</form>
 </main>
 

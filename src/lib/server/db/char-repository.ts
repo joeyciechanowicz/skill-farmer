@@ -52,6 +52,16 @@ export async function createOrUpdateChar({
 	}
 }
 
+export function findCharsByCsvToken(csvToken: string): Promise<Char[]> {
+	return db
+		.selectFrom('user')
+		.where('csvToken', '=', csvToken)
+		.where('csvToken', 'is not', null)
+		.innerJoin('char', 'char.user_id', 'user.id')
+		.selectAll()
+		.execute();
+}
+
 export async function updateAccessToken(
 	char: Char,
 	newAccessToken: string,

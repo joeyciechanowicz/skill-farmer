@@ -4,4 +4,5 @@ export interface PageRes {
 	user: User | undefined;
 	chars: Char[];
 	loginUrl: string;
+	siteUrl: string;
 }

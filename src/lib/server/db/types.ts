@@ -9,6 +9,7 @@ export interface UserTable {
 	id: Generated<number>;
 	charId: number;
 	sessionId: string;
+	csvToken: string;
 }
 
 export type User = Selectable<UserTable>;

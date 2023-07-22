@@ -1,10 +1,10 @@
-import { CLIENT_ID, SECRET_KEY, SESSION_COOKIE_NAME } from '$env/static/private';
+import { SESSION_COOKIE_NAME } from '$env/static/private';
 import { redirect } from '@sveltejs/kit';
 
-import { createOrLoginUser } from '$lib/server/db/user-repository';
-import { verifyJwt } from '$lib/server/jwt.js';
 import { createOrUpdateChar } from '$lib/server/db/char-repository';
+import { createOrLoginUser } from '$lib/server/db/user-repository';
 import { fetchOauthToken, updateSp } from '$lib/server/esi';
+import { verifyJwt } from '$lib/server/jwt.js';
 
 export async function load({ locals, url, cookies }) {
 	const code = url.searchParams.get('code');

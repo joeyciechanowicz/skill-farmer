@@ -12,12 +12,13 @@
 	<ul>
 		{#if data.user}
 			<li><a href="/dashboard" class="pure-menu-link">Dashboard</a></li>
+		{:else}
+			<li>
+				<a href={data.loginUrl}>
+					<img src="{assets}/eve-sso-login-black-small.png" alt="Login with EVE" />
+				</a>
+			</li>
 		{/if}
-		<li>
-			<a href={data.loginUrl}>
-				<img src="{assets}/eve-sso-login-black-small.png" alt="Login with EVE" />
-			</a>
-		</li>
 	</ul>
 </nav>
 

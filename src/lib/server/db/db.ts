@@ -14,7 +14,8 @@ if (!building) {
 CREATE TABLE IF NOT EXISTS user(
     id INTEGER PRIMARY KEY,
     charId TEXT NOT NULL,
-    sessionId TEXT
+    sessionId TEXT,
+	csvToken TEXT
 );
 
 CREATE TABLE IF NOT EXISTS char(
@@ -30,6 +31,11 @@ CREATE TABLE IF NOT EXISTS char(
 CREATE INDEX IF NOT EXISTS idx_char_user_id 
     ON char(user_id);
 `);
+
+	try {
+		database.exec(`ALTER TABLE user ADD COLUMN csvToken TEXT`);
+		// eslint-disable-next-line no-empty
+	} catch (e) {}
 }
 
 const dialect = new SqliteDialect({
