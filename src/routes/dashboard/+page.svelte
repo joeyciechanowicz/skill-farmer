@@ -9,11 +9,10 @@
 
 	let updating = false;
 
-	const spAvailableForExtraction: number = data.chars.reduce(
-		(sum, curr) => (sum += Math.max(0, curr.skill_points - 5000000)),
+	const extractorsAvailable: number = data.chars.reduce(
+		(sum, curr) => (sum += Math.floor(Math.max(0, curr.skill_points - 5000000) / 500000)),
 		0
 	);
-	const extractorsAvailable: number = Math.floor(spAvailableForExtraction / 500000);
 </script>
 
 <svelte:head>
@@ -25,7 +24,6 @@
 		<header><h1>Summary</h1></header>
 
 		<ul>
-			<li>SP Available for extraction: {spAvailableForExtraction.toLocaleString()}</li>
 			<li>Extractions possible: {extractorsAvailable}</li>
 			<li>
 				Add another character
@@ -87,7 +85,13 @@
 								<a href={data.loginUrl}>(Re-auth)</a>
 							{/if}
 						</td>
-						<td>{char.skill_points.toLocaleString()}</td>
+						<td>
+							{#if char.skill_points > 5500000}
+								<ins>{char.skill_points.toLocaleString()}</ins>
+							{:else}
+								{char.skill_points.toLocaleString()}
+							{/if}
+						</td>
 						<td>
 							<button type="submit" name="delete-char-id" value={char.id} class="outline secondary"
 								>X</button
