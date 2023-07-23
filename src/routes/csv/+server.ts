@@ -14,11 +14,9 @@ export async function GET(requestEvent) {
 		throw error(404, { message: 'Not a valid token' });
 	}
 
-	return json(
-		chars.map((c) => ({
-			name: c.name,
-			id: c.charId,
-			skillPoints: c.skill_points
-		}))
-	);
+	const csv =
+		'ID,Character,Skill Points\n' +
+		chars.map((c) => `${c.id},${c.name},${c.skill_points}`).join('\n');
+
+	return new Response(csv, { status: 200 });
 }
