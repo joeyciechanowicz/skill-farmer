@@ -18,7 +18,7 @@ export async function handle({ event, resolve }) {
 	event.locals.loginUrl = loginUrl;
 
 	const response = await resolve(event);
-	// response.headers.set('x-custom-header', 'potato');
+	response.headers.set('cache-control', 'no-cache');
 
 	return response;
 }
