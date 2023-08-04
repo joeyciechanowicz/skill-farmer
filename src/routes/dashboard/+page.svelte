@@ -13,6 +13,15 @@
 		(sum, curr) => (sum += Math.floor(Math.max(0, curr.skill_points - 5000000) / 500000)),
 		0
 	);
+
+	const spRatePerHour = (32 + (26 / 2)) * 60;
+	const adjustedSkillPoints: Record<string, number> = {};
+	data.chars.forEach(c => {
+		if (c.lastUpdate > 0) {
+			const hoursSinceLastUpdate = (Date.now() - c.lastUpdate) / 1000 / 60 / 60;
+			adjustedSkillPoints[c.id] = c.skill_points + Math.floor(hoursSinceLastUpdate * spRatePerHour);
+		}
+	})
 </script>
 
 <svelte:head>
@@ -32,6 +41,26 @@
 				</a>
 			</li>
 		</ul>
+		<p>
+			Available skillpoints are estimated based on the last time they were fetched from the ESI.
+			Unfortunately the Skills endpoint is cached heavily and typically doesn't update unless you
+			either perform an extraction or pause and resume your skill queue.<br />
+			Therefore +5's and a perfect remap are assumed. As otherwise, what sort of skill farm are you running?
+		</p>
+	</article>
+
+	<article>
+		<h2>CSV Export</h2>
+		<label for="csv-export">
+			Use this URL to import your data into a spreadsheet or other application. <strong
+				>Keep this private</strong
+			>, anyone with access to it can read all your characters skill points.
+			<input type="text" id="csv-export" name="csv-export" readonly value={data.csvEndpoint} />
+		</label>
+
+		<button type="submit" name="regenerate-token" value={1} aria-busy={updating}
+			>Regenerate CSV Token</button
+		>
 	</article>
 
 	<h1>Characters</h1>
@@ -69,6 +98,7 @@
 			<thead>
 				<th>Character</th>
 				<th>SP</th>
+				<th>Last update (days ago)</th>
 				<th>Delete</th>
 				<th>Refresh</th>
 			</thead>
@@ -86,15 +116,20 @@
 							{/if}
 						</td>
 						<td>
-							{#if char.skill_points > 5500000}
-								<ins>{char.skill_points.toLocaleString()}</ins>
-							{:else}
-								{char.skill_points.toLocaleString()}
-							{/if}
+							
+								{#if adjustedSkillPoints[char.id] > 5500000}
+									<ins>{adjustedSkillPoints[char.id].toLocaleString()}</ins>
+								{:else}
+									{adjustedSkillPoints[char.id].toLocaleString()}
+								{/if}
 						</td>
 						<td>
-							<button type="submit" name="delete-char-id" value={char.id} class="outline secondary"
-								>X</button
+							{(Math.floor((Date.now() - char.lastUpdate) / 1000 / 60 / 60 / 24)).toLocaleString()}
+						</td>
+						<td>
+							<button type="submit" name="delete-char-id" value={char.id} class="outline secondary">
+								X
+							</button
 							>
 						</td>
 						<td>
@@ -107,20 +142,6 @@
 		</table>
 
 		<button type="submit" name="refresh-all" value={1} aria-busy={updating}>Refresh all</button>
-
-		<article>
-			<h2>CSV Export</h2>
-			<label for="csv-export">
-				Use this URL to import your data into a spreadsheet or other application. <strong
-					>Keep this private</strong
-				>, anyone with access to it can read all your characters skill points.
-				<input type="text" id="csv-export" name="csv-export" readonly value={data.csvEndpoint} />
-			</label>
-
-			<button type="submit" name="regenerate-token" value={1} aria-busy={updating}
-				>Regenerate CSV Token</button
-			>
-		</article>
 	</form>
 </main>
 

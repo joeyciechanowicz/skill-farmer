@@ -48,7 +48,8 @@ export async function createOrUpdateChar({
 			refresh_token,
 			user_id: user.id,
 			skill_points: 0,
-			refreshExpired: 0
+			refreshExpired: 0,
+			lastUpdate: 0
 		};
 		return db.insertInto('char').values(newChar).returningAll().executeTakeFirstOrThrow();
 	}
@@ -85,7 +86,8 @@ export async function updateAccessToken(
 
 export async function updateCharSp(char: Char, sp: number) {
 	const update: CharUpdate = {
-		skill_points: sp
+		skill_points: sp,
+		lastUpdate: Date.now()
 	};
 
 	await db.updateTable('char').set(update).where('id', '=', char.id).execute();

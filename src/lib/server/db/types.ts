@@ -25,6 +25,7 @@ export interface CharTable {
 	skill_points: number;
 	user_id: number;
 	refreshExpired: number;
+	lastUpdate: number;
 }
 
 export type Char = Selectable<CharTable>;

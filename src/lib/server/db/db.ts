@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS char(
 	refresh_token TEXT,
 	skill_points INTEGER,
 	user_id INTEGER,
-	refreshExpired INTEGER
+	refreshExpired INTEGER,
+	lastUpdate INTEGER
 );
 
 CREATE INDEX IF NOT EXISTS idx_char_user_id 
@@ -39,6 +40,10 @@ CREATE INDEX IF NOT EXISTS idx_char_user_id
 	} catch (e) {}
 	try {
 		database.exec(`ALTER TABLE char ADD COLUMN refreshExpired INTEGER`);
+		// eslint-disable-next-line no-empty
+	} catch (e) {}
+	try {
+		database.exec(`ALTER TABLE char ADD COLUMN lastUpdate INTEGER`);
 		// eslint-disable-next-line no-empty
 	} catch (e) {}
 }
