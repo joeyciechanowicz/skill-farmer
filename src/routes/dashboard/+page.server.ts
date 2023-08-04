@@ -2,7 +2,7 @@ import { deleteChar } from '$lib/server/db/char-repository';
 import { updateSp } from '$lib/server/esi';
 import { redirect } from '@sveltejs/kit';
 import { SITE_URL } from '$env/static/private';
-import type { PageRes } from '../types';
+import type { CharAdjusted, PageRes } from '../types';
 import { regenerateCsvToken } from '$lib/server/db/user-repository';
 
 const csvEndpoint = (token: string) => `${SITE_URL}/csv?token=${token}`;
@@ -12,11 +12,28 @@ export function load({ locals }): PageRes {
 		throw redirect(307, '/');
 	}
 
+	const spRatePerHour = (32 + (26 / 2)) * 60;
+	const adjustedChars: CharAdjusted[] = locals.chars.map(c => {
+		if (c.lastUpdate > 0) {
+			const hoursSinceLastUpdate = (Date.now() - c.lastUpdate) / 1000 / 60 / 60;
+			return {
+				...c,
+				adjustedSkillPoints: c.skill_points + Math.floor(hoursSinceLastUpdate * spRatePerHour)
+			};
+		} else {
+			return {
+				...c,
+				adjustedSkillPoints: c.skill_points,
+				lastUpdate: Date.now()
+			}
+		}
+	})
+
 	return {
 		user: locals.user,
-		chars: locals.chars,
+		chars: adjustedChars,
 		loginUrl: locals.loginUrl,
-		csvEndpoint: csvEndpoint(locals.user.csvToken)
+		csvEndpoint: csvEndpoint(locals.user.csvToken),
 	};
 }
 
@@ -92,6 +109,7 @@ export const actions = {
 				}
 
 				char.skill_points = newSp;
+				
 				return { refreshed: true, name: char.name };
 			} else {
 				return { error: true, message: `No char found with id ${refreshCharIdInt}` };

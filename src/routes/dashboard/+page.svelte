@@ -13,18 +13,6 @@
 		(sum, curr) => (sum += Math.floor(Math.max(0, curr.skill_points - 5000000) / 500000)),
 		0
 	);
-
-	const spRatePerHour = (32 + (26 / 2)) * 60;
-	const adjustedSkillPoints: Record<string, number> = {};
-	data.chars.forEach(c => {
-		if (c.lastUpdate > 0) {
-			const hoursSinceLastUpdate = (Date.now() - c.lastUpdate) / 1000 / 60 / 60;
-			adjustedSkillPoints[c.id] = c.skill_points + Math.floor(hoursSinceLastUpdate * spRatePerHour);
-		} else {
-			adjustedSkillPoints[c.id] = c.skill_points;
-			c.lastUpdate = Date.now();
-		}
-	})
 </script>
 
 <svelte:head>
@@ -120,10 +108,10 @@
 						</td>
 						<td>
 							
-								{#if adjustedSkillPoints[char.id] > 5500000}
-									<ins>{adjustedSkillPoints[char.id].toLocaleString()}</ins>
+								{#if char.adjustedSkillPoints > 5500000}
+									<ins>{char.adjustedSkillPoints.toLocaleString()}</ins>
 								{:else}
-									{adjustedSkillPoints[char.id].toLocaleString()}
+									{char.adjustedSkillPoints.toLocaleString()}
 								{/if}
 						</td>
 						<td>
