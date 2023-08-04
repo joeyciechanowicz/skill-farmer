@@ -20,6 +20,9 @@
 		if (c.lastUpdate > 0) {
 			const hoursSinceLastUpdate = (Date.now() - c.lastUpdate) / 1000 / 60 / 60;
 			adjustedSkillPoints[c.id] = c.skill_points + Math.floor(hoursSinceLastUpdate * spRatePerHour);
+		} else {
+			adjustedSkillPoints[c.id] = c.skill_points;
+			c.lastUpdate = Date.now();
 		}
 	})
 </script>
